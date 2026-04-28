@@ -3,103 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 Newton MO PWA v7.1</title>
+    <title>NEWTON Match Observer PWA v7.4.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
-        body { font-size: 12pt; touch-action: manipulation; background-color: #030712; height: 100vh; width: 100vw; overflow: hidden; }
+        body { font-size: 12pt; touch-action: manipulation; background-color: #030712; height: 100vh; width: 100vw; display: flex; flex-direction: column; overflow: hidden; }
         .no-bounce { overscroll-behavior: none; }
-        input[type="range"] { -webkit-appearance: none; background: #374151; height: 12px; border-radius: 6px; width: 100%; margin: 10px 0; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; background: #3b82f6; border: 2px solid white; box-shadow: 0 0 8px rgba(0,0,0,0.5); }
+        input[type="range"] { -webkit-appearance: none; background: #374151; height: 8px; border-radius: 6px; width: 100%; margin: 12px 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 32px; width: 32px; border-radius: 50%; background: #3b82f6; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
         .section-card { border-left-width: 4px; padding-left: 0.75rem; margin-bottom: 1.5rem; }
-        .scroll-container { height: calc(100vh - 180px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .scroll-container { height: calc(100vh - 240px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        footer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; height: 90px; }
     </style>
 </head>
-<body class="text-gray-100 flex flex-col no-bounce" x-data="scoutApp()" x-init="initApp()">
+<body class="text-gray-100 no-bounce" x-data="scoutApp()" x-init="initApp()">
 
     <template x-if="!authenticated">
         <div class="fixed inset-0 z-[100] bg-gray-950 flex flex-col items-center justify-center p-6 text-center">
-            <h1 class="text-5xl font-black mb-10 text-blue-600 italic">MO PWA v7.1</h1>
-            <input type="password" x-model="passwordInput" @keyup.enter="login()" class="w-full max-w-sm p-5 rounded-2xl bg-gray-800 mb-6 text-center text-2xl border border-gray-700 outline-none focus:border-blue-500" placeholder="Access Code">
-            <button @click="login()" class="w-full max-w-sm bg-blue-600 py-5 rounded-2xl font-black text-xl uppercase tracking-widest">Authorize</button>
+            <h1 class="text-4xl font-black mb-10 text-blue-600 italic uppercase">NEWTON MO v7.4.5</h1>
+            <input type="password" x-model="passwordInput" @keyup.enter="login()" class="w-full max-w-sm p-5 rounded-2xl bg-gray-800 mb-6 text-center text-2xl border border-gray-700 outline-none" placeholder="Access Code">
+            <button @click="login()" class="w-full max-w-sm bg-blue-600 py-5 rounded-2xl font-black text-xl uppercase italic">Authorize</button>
         </div>
     </template>
 
     <div class="flex flex-col h-full w-full" x-show="authenticated" x-cloak>
-        <header class="bg-gray-900 border-b border-gray-800 p-4 flex items-center justify-between shadow-2xl shrink-0">
-            <div class="flex items-center space-x-6">
-                <h1 class="font-black text-2xl text-blue-600 italic leading-none">NEWTON<br><span class="text-[10px] text-gray-500 not-italic tracking-widest">SCOUTING v7.1</span></h1>
-                <div class="flex items-center space-x-2 bg-gray-800 p-1 rounded-xl">
-                    <input type="number" x-model="matchNum" @change="fetchTeams()" class="bg-transparent w-16 text-xl font-black text-center outline-none">
-                    <div class="flex p-1 space-x-1">
-                        <button @click="alliance = 'red'; fetchTeams()" :class="alliance === 'red' ? 'bg-red-600 shadow-lg' : 'text-gray-500'" class="px-4 py-1 rounded-lg font-black text-xs uppercase transition-all">Red</button>
-                        <button @click="alliance = 'blue'; fetchTeams()" :class="alliance === 'blue' ? 'bg-blue-600 shadow-lg' : 'text-gray-500'" class="px-4 py-1 rounded-lg font-black text-xs uppercase transition-all">Blue</button>
+        <header class="bg-gray-900 border-b border-gray-800 p-3 flex items-center justify-between shadow-2xl shrink-0">
+            <div class="flex items-center space-x-4">
+                <h1 class="font-black text-lg text-blue-600 italic leading-none uppercase">NEWTON MO<br><span class="text-[9px] text-gray-500 not-italic tracking-widest uppercase text-center block">v7.4.5</span></h1>
+                <div class="flex items-center space-x-1 bg-gray-800 p-1 rounded-xl px-3 border border-gray-700">
+                    <span class="text-[9px] font-black text-gray-500 uppercase">Match</span>
+                    <button @click="if(matchNum > 1) { matchNum--; handleMatchChange(); }" class="text-blue-500 font-bold px-2 text-xl">-</button>
+                    <input type="number" x-model="matchNum" @input="handleMatchChange()" class="bg-transparent w-8 text-xl font-black text-center outline-none text-white">
+                    <button @click="matchNum++; handleMatchChange();" class="text-blue-500 font-bold px-2 text-xl">+</button>
+                    <div class="flex p-1 space-x-1 border-l border-gray-700 ml-2">
+                        <button @click="alliance = 'red'; handleMatchChange()" :class="alliance === 'red' ? 'bg-red-600 shadow-lg' : 'text-gray-500'" class="px-3 py-1 rounded-lg font-black text-[10px] uppercase">Red</button>
+                        <button @click="alliance = 'blue'; handleMatchChange()" :class="alliance === 'blue' ? 'bg-blue-600 shadow-lg' : 'text-gray-500'" class="px-3 py-1 rounded-lg font-black text-[10px] uppercase">Blue</button>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center space-x-4">
-                <button @click="showSettings = true" class="p-2 text-gray-500 hover:text-white transition-colors">⚙️</button>
-                <button @click="syncData($event)" :class="pendingSync.length > 0 ? 'bg-orange-600 animate-pulse' : 'bg-green-700'" class="px-6 py-2 rounded-xl font-black text-xs shadow-lg">
-                    SYNC (<span x-text="Math.floor(pendingSync.length/3)"></span>)
+            <div class="flex items-center space-x-3">
+                <button @click="syncData($event)" :class="unsyncedCount > 0 ? 'bg-orange-600 animate-pulse' : 'bg-green-700 opacity-50'" class="px-4 py-2 rounded-xl font-black text-[10px] uppercase">
+                    Sync (<span x-text="unsyncedCount"></span>)
                 </button>
+                <button @click="showSettings = true" class="p-2 text-gray-500">⚙️</button>
             </div>
         </header>
 
-        <main class="flex-1 overflow-x-auto p-4 flex space-x-4 bg-gray-950">
+        <main class="flex-1 overflow-x-auto p-4 flex space-x-4 bg-gray-950 pb-28">
             <template x-for="(team, index) in teams" :key="index">
                 <div class="relative flex-1 min-w-[420px] bg-gray-900 rounded-3xl flex flex-col border-b-8 shadow-2xl overflow-hidden" :class="alliance === 'red' ? 'border-red-600' : 'border-blue-600'">
                     
-                    <div x-show="formData[index].skip" class="absolute inset-0 z-20 bg-gray-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
-                        <button @click="formData[index].skip = false" class="bg-blue-600 px-8 py-4 rounded-2xl font-bold uppercase">Restore Robot</button>
+                    <div x-show="formData[index].skip" class="absolute inset-0 z-20 bg-gray-950/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
+                        <button @click="formData[index].skip = 0" class="bg-blue-600 px-10 py-4 rounded-2xl font-black uppercase italic">Restore Robot</button>
                     </div>
 
                     <div class="p-4 bg-gray-800/50 flex justify-between items-center border-b border-gray-800 shrink-0">
                         <div class="flex flex-col">
-                            <span class="text-[9px] font-black text-gray-500 uppercase">Team Number</span>
-                            <input type="text" x-model="team.number" @focus="if(team.number === '---') team.number = ''" class="bg-transparent text-4xl font-black text-white w-28 outline-none focus:text-blue-500">
+                            <span class="text-[9px] font-black text-gray-500 uppercase">Team #</span>
+                            <input type="text" x-model="team.number" @focus="if(team.number === '---') team.number = ''" @blur="if(team.number === '') team.number = '---'" class="bg-transparent text-4xl font-black text-white w-28 outline-none">
                         </div>
-                        <div class="text-right flex flex-col items-end">
-                            <button @click="formData[index].skip = true" class="text-[9px] bg-red-600/10 text-red-500 px-3 py-1 rounded-full font-black uppercase mb-1">Skip</button>
-                            <input type="text" x-model="team.name" class="bg-transparent text-sm text-blue-400 font-bold text-right w-44 outline-none italic">
-                        </div>
+                        <button @click="formData[index].skip = 1" class="text-[10px] text-red-500/50 uppercase font-black">Omit Robot</button>
                     </div>
 
                     <div class="scroll-container p-6 space-y-8">
-                        
                         <section class="section-card border-blue-600">
-                            <h3 class="text-xs font-black text-blue-500 uppercase tracking-widest mb-4">Autonomous Period</h3>
+                            <h3 class="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-4 italic">Autonomous</h3>
                             <div class="grid grid-cols-2 gap-2 mb-6">
-                                <button @click="formData[index].autoMove = !formData[index].autoMove" :class="formData[index].autoMove ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-3 rounded-lg text-[10px] font-black uppercase transition-all">Robot Moves?</button>
-                                <button @click="formData[index].autoShootMove = !formData[index].autoShootMove" :class="formData[index].autoShootMove ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-3 rounded-lg text-[10px] font-black uppercase transition-all">Shoot & Move?</button>
+                                <button @click="formData[index].autoMove = formData[index].autoMove ? 0 : 1" :class="formData[index].autoMove ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-4 rounded-xl text-[10px] font-black uppercase">Taxi/Move</button>
+                                <button @click="formData[index].autoShootMove = formData[index].autoShootMove ? 0 : 1" :class="formData[index].autoShootMove ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-4 rounded-xl text-[10px] font-black uppercase">Shoot & Move</button>
                             </div>
-                            
                             <div class="space-y-6">
-                                <x-slider label="Preload Accuracy" x-model="formData[index].autoPreloadAcc" color="text-blue-400"></x-slider>
-                                
-                                <div class="flex items-center justify-between bg-gray-800/40 p-4 rounded-xl border border-gray-700 shadow-inner">
-                                    <span class="text-[10px] font-black uppercase text-gray-400">Post-Preload Sweeps</span>
+                                <div><div class="flex justify-between mb-1"><span class="text-[10px] font-black text-gray-500 uppercase">Preload Acc</span><span class="text-lg font-black text-blue-400" x-text="formData[index].autoPreloadAcc"></span></div><input type="range" min="0" max="10" x-model="formData[index].autoPreloadAcc"></div>
+                                <div class="flex items-center justify-between bg-gray-800/40 p-4 rounded-xl border border-gray-700">
+                                    <span class="text-[10px] font-black uppercase text-gray-400">Sweeps Count</span>
                                     <div class="flex items-center space-x-4">
-                                        <button @click="if(formData[index].autoSweeps > 0) formData[index].autoSweeps--" class="w-10 h-10 bg-gray-700 rounded-lg font-black text-xl">-</button>
+                                        <button @click="if(formData[index].autoSweeps > 0) formData[index].autoSweeps--" class="w-10 h-10 bg-gray-700 rounded-lg">-</button>
                                         <span class="text-3xl font-black w-8 text-center" x-text="formData[index].autoSweeps"></span>
-                                        <button @click="formData[index].autoSweeps++" class="w-10 h-10 bg-gray-700 rounded-lg font-black text-xl">+</button>
+                                        <button @click="formData[index].autoSweeps++" class="w-10 h-10 bg-gray-700 rounded-lg">+</button>
                                     </div>
                                 </div>
-
                                 <div class="grid grid-cols-2 gap-2">
-                                    <button @click="formData[index].autoShootAfterSweep = !formData[index].autoShootAfterSweep" :class="formData[index].autoShootAfterSweep ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-3 rounded-lg text-[10px] font-black uppercase">Shoot after sweep?</button>
-                                    <button @click="formData[index].autoSweepMoveShoot = !formData[index].autoSweepMoveShoot" :class="formData[index].autoSweepMoveShoot ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-3 rounded-lg text-[10px] font-black uppercase">Sweep, Move & Shoot?</button>
+                                    <button @click="formData[index].autoShootAfterSweep = formData[index].autoShootAfterSweep ? 0 : 1" :class="formData[index].autoShootAfterSweep ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-3 rounded-lg text-[10px] font-black uppercase">Shoot Post-Sweep</button>
+                                    <button @click="formData[index].autoSweepMoveShoot = formData[index].autoSweepMoveShoot ? 0 : 1" :class="formData[index].autoSweepMoveShoot ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-3 rounded-lg text-[10px] font-black uppercase">Sweep Move Shoot</button>
                                 </div>
-
-                                <x-slider label="Sweep Shooting Accuracy" x-model="formData[index].autoSweepShootAcc" color="text-blue-400"></x-slider>
-                                <x-slider label="Post Sweep Align" x-model="formData[index].autoPostSweepAlign" color="text-blue-400"></x-slider>
-                                <x-slider label="Shoot & Sweep Accuracy" x-model="formData[index].autoShootSweepAcc" color="text-blue-400"></x-slider>
-                                
+                                <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Sweep Acc</span><span class="text-lg font-black text-blue-400" x-text="formData[index].autoSweepShootAcc"></span></div><input type="range" min="0" max="10" x-model="formData[index].autoSweepShootAcc"></div>
+                                <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Post Sweep Align</span><span class="text-lg font-black text-blue-400" x-text="formData[index].autoPostSweepAlign"></span></div><input type="range" min="0" max="10" x-model="formData[index].autoPostSweepAlign"></div>
                                 <div class="pt-2">
-                                    <span class="text-[10px] font-black uppercase text-gray-500 mb-3 block tracking-widest">Auto Climb?</span>
-                                    <div class="flex space-x-2">
+                                    <span class="text-[10px] font-black uppercase text-gray-500 mb-2 block">Auto Climb Level</span>
+                                    <div class="flex space-x-1">
                                         <template x-for="l in ['X', 1, 2, 3]">
-                                            <button @click="formData[index].autoClimb = l" :class="formData[index].autoClimb == l ? 'bg-blue-600 shadow-lg scale-105' : 'bg-gray-800'" class="flex-1 py-4 rounded-xl text-sm font-black transition-all" x-text="l"></button>
+                                            <button @click="formData[index].autoClimb = l" :class="formData[index].autoClimb == l ? 'bg-blue-600' : 'bg-gray-800'" class="flex-1 py-4 rounded-xl text-sm font-black" x-text="l"></button>
                                         </template>
                                     </div>
                                 </div>
@@ -107,29 +101,29 @@
                         </section>
 
                         <section class="section-card border-orange-600">
-                            <h3 class="text-xs font-black text-orange-500 uppercase tracking-widest mb-4">Teleop (Control)</h3>
+                            <h3 class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-4 italic">Teleop Performance</h3>
                             <div class="space-y-6">
-                                <x-slider label="Shooting Accuracy" x-model="formData[index].teleAcc" color="text-orange-400"></x-slider>
-                                <x-slider label="Shoot & Sweep Accuracy" x-model="formData[index].teleShootSweepAcc" color="text-orange-400"></x-slider>
-                                <x-slider label="Score Rate (Volume)" x-model="formData[index].teleScore" color="text-orange-400"></x-slider>
-                                <x-slider label="Score on Move" x-model="formData[index].teleScoreMove" color="text-orange-400"></x-slider>
-                                <x-slider label="Cycle Reliability (1-10)" x-model="formData[index].teleCycleRel" color="text-orange-400"></x-slider>
-                                <x-slider label="Under Pressure Acc" x-model="formData[index].telePressureAcc" color="text-orange-400"></x-slider>
-                                <x-slider label="Software Alignment" x-model="formData[index].teleAutoAlign" color="text-orange-400"></x-slider>
-                                <x-slider label="Opp. Scoop Rating" x-model="formData[index].teleScoop" color="text-orange-400"></x-slider>
-                                
-                                <div class="pt-6 border-t border-gray-800">
-                                    <h4 class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-widest">Defense Capability</h4>
-                                    <x-slider label="Overall Effectiveness" x-model="formData[index].teleDefEff" color="text-red-400"></x-slider>
-                                    <x-slider label="Push/Distract Opponent" x-model="formData[index].teleDefPower" color="text-red-400"></x-slider>
-                                    <x-slider label="Starvation Effectivity" x-model="formData[index].teleStarve" color="text-red-400"></x-slider>
-                                </div>
+                                <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Shooting Accuracy</span><span class="text-lg font-black text-orange-400" x-text="formData[index].teleAcc"></span></div><input type="range" min="0" max="10" x-model="formData[index].teleAcc"></div>
+                                <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Score Rate</span><span class="text-lg font-black text-orange-400" x-text="formData[index].teleScore"></span></div><input type="range" min="0" max="10" x-model="formData[index].teleScore"></div>
+                                <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Score on Move</span><span class="text-lg font-black text-orange-400" x-text="formData[index].teleScoreMove"></span></div><input type="range" min="0" max="10" x-model="formData[index].teleScoreMove"></div>
+                                <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Cycle Reliability</span><span class="text-lg font-black text-orange-400" x-text="formData[index].teleCycleRel"></span></div><input type="range" min="0" max="10" x-model="formData[index].teleCycleRel"></div>
+                                <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Pressure Acc</span><span class="text-lg font-black text-orange-400" x-text="formData[index].telePressureAcc"></span></div><input type="range" min="0" max="10" x-model="formData[index].telePressureAcc"></div>
+                                <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Auto-Alignment (SW)</span><span class="text-lg font-black text-orange-400" x-text="formData[index].teleAutoAlign"></span></div><input type="range" min="0" max="10" x-model="formData[index].teleAutoAlign"></div>
+                                <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Opp. Scoop Rating</span><span class="text-lg font-black text-orange-400" x-text="formData[index].teleScoop"></span></div><input type="range" min="0" max="10" x-model="formData[index].teleScoop"></div>
 
+                                <div class="pt-6 border-t border-gray-800">
+                                    <h4 class="text-[9px] font-black text-red-500 uppercase mb-4">Defense Eval</h4>
+                                    <div class="space-y-6">
+                                        <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Efficiency</span><span class="text-lg font-black text-red-400" x-text="formData[index].teleDefEff"></span></div><input type="range" min="0" max="10" x-model="formData[index].teleDefEff"></div>
+                                        <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Pushing/Power</span><span class="text-lg font-black text-red-400" x-text="formData[index].teleDefPower"></span></div><input type="range" min="0" max="10" x-model="formData[index].teleDefPower"></div>
+                                        <div><div class="flex justify-between mb-1"><span class="text-[10px] uppercase text-gray-500">Starvation Impact</span><span class="text-lg font-black text-red-400" x-text="formData[index].teleStarve"></span></div><input type="range" min="0" max="10" x-model="formData[index].teleStarve"></div>
+                                    </div>
+                                </div>
                                 <div class="pt-2">
-                                    <span class="text-[10px] font-black uppercase text-gray-500 mb-3 block text-center tracking-widest">Final Match Climb</span>
-                                    <div class="flex space-x-2">
+                                    <span class="text-[10px] uppercase text-gray-500 mb-2 block text-center tracking-widest">Endgame Climb</span>
+                                    <div class="flex space-x-1">
                                         <template x-for="l in ['X', 1, 2, 3]">
-                                            <button @click="formData[index].climbLvl = l" :class="formData[index].climbLvl == l ? 'bg-orange-600 shadow-lg scale-105' : 'bg-gray-800'" class="flex-1 py-5 rounded-xl text-xl font-black transition-all" x-text="l"></button>
+                                            <button @click="formData[index].climbLvl = l" :class="formData[index].climbLvl == l ? 'bg-orange-600 shadow-lg' : 'bg-gray-800'" class="flex-1 py-5 rounded-xl text-xl font-black" x-text="l"></button>
                                         </template>
                                     </div>
                                 </div>
@@ -137,118 +131,122 @@
                         </section>
 
                         <div class="bg-gray-950 p-4 rounded-3xl border border-gray-800">
-                            <span class="text-[9px] font-black text-gray-600 uppercase mb-2 block tracking-widest">Observer Notes</span>
-                            <textarea x-model="formData[index].comments" placeholder="Cycle timing, reliability, or key maneuvers..." class="w-full bg-transparent p-1 rounded-lg h-32 text-sm focus:outline-none resize-none"></textarea>
+                            <textarea x-model="formData[index].comments" placeholder="Strategic notes..." class="w-full bg-transparent h-32 text-sm outline-none resize-none"></textarea>
                         </div>
                     </div>
                 </div>
             </template>
         </main>
 
-        <footer class="p-6 bg-gray-900 border-t border-gray-800 flex justify-center shrink-0">
-            <button @click="submitMatch()" class="w-full max-w-4xl bg-blue-600 hover:bg-blue-500 py-6 rounded-3xl font-black text-3xl uppercase tracking-tighter italic transition-all active:scale-95 shadow-2xl shadow-blue-900/20">
-                Submit Match <span x-text="matchNum"></span> Results
+        <footer class="bg-gray-900 border-t border-gray-800 flex items-center justify-center px-6 shadow-2xl">
+            <button @click="submitMatch()" class="w-full max-w-5xl bg-blue-600 py-6 rounded-3xl font-black text-2xl uppercase italic active:scale-95 transition-all">
+                Submit/Update Match <span x-text="matchNum"></span>
             </button>
         </footer>
 
-        <div x-show="showSettings" class="fixed inset-0 z-[110] bg-black/95 flex items-center justify-center p-6" x-transition.opacity x-cloak>
-            <div class="bg-gray-900 p-8 rounded-3xl w-full max-w-md border border-gray-800 shadow-2xl">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-2xl font-black italic">CONFIGURATION</h2>
-                    <button @click="showSettings = false" class="text-gray-500 text-3xl">&times;</button>
-                </div>
+        <div x-show="showSettings" class="fixed inset-0 z-[110] bg-black/95 flex items-center justify-center p-6" x-cloak>
+            <div class="bg-gray-900 p-8 rounded-3xl w-full max-w-md border border-gray-800">
+                <button @click="showSettings = false" class="float-right text-gray-500 text-3xl">&times;</button>
+                <h2 class="text-2xl font-black italic uppercase mb-8">System</h2>
                 <div class="space-y-6">
-                    <div>
-                        <label class="text-[10px] font-black text-gray-500 uppercase mb-2 block">Google Script Endpoint</label>
-                        <input type="text" x-model="sheetUrl" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 outline-none text-xs font-mono">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-gray-500 uppercase mb-2 block">Division Key</label>
-                        <input type="text" x-model="eventKey" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 outline-none text-sm font-mono">
-                    </div>
-                    <button @click="saveSettings()" class="w-full bg-blue-600 py-5 rounded-2xl font-black uppercase tracking-widest shadow-xl">Update System</button>
+                    <input type="text" x-model="sheetUrl" class="w-full p-4 bg-gray-800 rounded-xl text-xs font-mono border border-gray-700">
+                    <button @click="if(confirm('Wipe History?')) { matchHistory=[]; localStorage.removeItem('mo_history_v7'); resetFormData(); }" class="w-full bg-red-900/20 text-red-500 py-4 rounded-xl uppercase font-black text-[10px]">Purge Local Cache</button>
+                    <button @click="showSettings = false" class="w-full bg-blue-600 py-5 rounded-2xl font-black uppercase italic">Return</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <template id="x-slider">
-        <div class="w-full">
-            <div class="flex justify-between items-end mb-1">
-                <span class="text-[10px] font-black uppercase text-gray-500 tracking-tighter" x-text="label"></span>
-                <span class="text-lg font-black" :class="color" x-text="$el.parentElement.querySelector('input').value"></span>
-            </div>
-            <input type="range" min="0" max="10" @input="$el.parentElement.querySelector('span:last-child').innerText = $el.value">
-        </div>
-    </template>
-
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('scoutApp', () => ({
-                authenticated: false, passwordInput: '', showSettings: false, matchNum: 1, alliance: 'red',
-                eventKey: '2026new', sheetUrl: localStorage.getItem('mo_sheet_v7') || '',
+                authenticated: false, passwordInput: '', showSettings: false,
+                matchNum: 1, alliance: 'red', eventKey: '2026new',
+                sheetUrl: localStorage.getItem('mo_sheet_v7') || 'https://script.google.com/macros/s/AKfycbxk5ghB7YuFqxcchPIr29MBeJTKHbSZocO8Zuy3dFSoryk0pW4DT6lMsebxgueH9Sakdg/exec',
                 tbaKey: '0DRn5X0aCfSzLQiG4HyL8r0ncrjhzRKgFj5bZEfrFjCdfe2NB653OI7rg76wkyJ5',
                 teams: [{number: '---', name: ''},{number: '---', name: ''},{number: '---', name: ''}],
-                formData: [], pendingSync: JSON.parse(localStorage.getItem('mo_sync_v7') || '[]'),
+                formData: [], matchHistory: JSON.parse(localStorage.getItem('mo_history_v7') || '[]'),
+                
+                get unsyncedCount() { return this.matchHistory.filter(m => !m.synced).length; },
 
                 initApp() { 
                     this.resetFormData(); 
-                    this.fetchTeams(); 
+                    this.handleMatchChange(); 
                     if(localStorage.getItem('mo_auth_v7')==='true') this.authenticated=true; 
                 },
+
                 login() { if(this.passwordInput === 'Newton2026') { this.authenticated=true; localStorage.setItem('mo_auth_v7','true'); } },
+
                 resetFormData() {
                     this.formData = Array.from({ length: 3 }, () => ({
-                        autoMove: false, autoShootMove: false, autoShootAfterSweep: false, autoSweepMoveShoot: false,
-                        autoPreloadAcc: 5, autoSweeps: 0, autoSweepShootAcc: 5, autoPostSweepAlign: 5, autoShootSweepAcc: 5, autoClimb: 'X',
-                        teleAcc: 5, teleShootSweepAcc: 5, teleScore: 5, teleScoreMove: 5, teleCycleRel: 5, telePressureAcc: 5, teleAutoAlign: 5, teleScoop: 5, 
-                        teleDefEff: 0, teleDefPower: 0, teleStarve: 0, climbLvl: 'X', comments: '', skip: false
+                        // Explicitly initializing with 0 for binary fields
+                        autoMove: 0, autoShootMove: 0, autoShootAfterSweep: 0, autoSweepMoveShoot: 0,
+                        autoPreloadAcc: 0, autoSweeps: 0, autoSweepShootAcc: 0, autoPostSweepAlign: 0, autoClimb: 'X',
+                        teleAcc: 0, teleScore: 0, teleScoreMove: 0, teleCycleRel: 0, telePressureAcc: 0, teleAutoAlign: 0, teleScoop: 0, 
+                        teleDefEff: 0, teleDefPower: 0, teleStarve: 0, climbLvl: 'X', comments: '', skip: 0, synced: 0
                     }));
                 },
+
+                handleMatchChange() {
+                    this.resetFormData();
+                    this.fetchTeams().then(() => {
+                        this.teams.forEach((team, index) => {
+                            const existing = this.matchHistory.find(m => m.matchNum == this.matchNum && m.teamNum == team.number);
+                            if (existing) {
+                                // Load exactly what is in history
+                                this.formData[index] = JSON.parse(JSON.stringify(existing));
+                            }
+                        });
+                    });
+                    document.querySelectorAll('.scroll-container').forEach(el => el.scrollTop = 0);
+                },
+
                 async fetchTeams() {
                     try {
                         const res = await fetch(`https://www.thebluealliance.com/api/v3/event/${this.eventKey}/matches/simple`, { headers: { 'X-TBA-Auth-Key': this.tbaKey } });
-                        const match = (await res.json()).find(m => m.match_number == this.matchNum && m.comp_level == 'qm');
-                        if (match) this.teams = match.alliances[this.alliance].team_keys.map(k => ({ number: k.replace('frc', ''), name: `Team ${k.replace('frc', '')}` }));
+                        const data = await res.json();
+                        const match = data.find(m => m.match_number == this.matchNum && m.comp_level == 'qm');
+                        if (match) {
+                            this.teams = match.alliances[this.alliance].team_keys.map(k => ({ number: k.replace('frc', ''), name: `Team ${k.replace('frc', '')}` }));
+                        }
                     } catch (e) { console.warn("TBA Offline"); }
                 },
+
                 submitMatch() {
                     this.teams.forEach((t, i) => {
-                        if (!this.formData[i].skip) {
-                            const d = this.formData[i];
-                            this.pendingSync.push({
-                                matchNum: this.matchNum, teamNum: t.number, alliance: this.alliance, ...d,
-                                autoMoveNum: d.autoMove ? 1 : 0,
-                                autoShootMoveNum: d.autoShootMove ? 1 : 0,
-                                autoShootAfterSweepNum: d.autoShootAfterSweep ? 1 : 0,
-                                autoSweepMoveShootNum: d.autoSweepMoveShoot ? 1 : 0,
-                                timestamp: new Date().toLocaleString()
-                            });
+                        if (!this.formData[i].skip && t.number !== '---') {
+                            const existingIdx = this.matchHistory.findIndex(m => m.matchNum == this.matchNum && m.teamNum == t.number);
+                            const record = {
+                                ...this.formData[i],
+                                matchNum: Number(this.matchNum),
+                                teamNum: t.number,
+                                alliance: this.alliance,
+                                timestamp: new Date().toLocaleString(),
+                                synced: 0
+                            };
+                            if (existingIdx > -1) this.matchHistory[existingIdx] = record;
+                            else this.matchHistory.push(record);
                         }
                     });
-                    localStorage.setItem('mo_sync_v7', JSON.stringify(this.pendingSync));
+                    localStorage.setItem('mo_history_v7', JSON.stringify(this.matchHistory));
+                    alert("Saved Match " + this.matchNum);
                     this.matchNum++; 
-                    this.resetFormData(); 
-                    this.fetchTeams();
-                    document.querySelectorAll('.scroll-container').forEach(el => el.scrollTop = 0);
+                    this.handleMatchChange();
                 },
+
                 async syncData(e) {
-                    if(!this.sheetUrl) return alert("Endpoint URL missing in Settings!");
-                    const btn = e.target; btn.innerText = "UPDATING..."; btn.disabled = true;
+                    const toSync = this.matchHistory.filter(m => !m.synced);
+                    if(toSync.length === 0) return alert("All data uploaded.");
+                    const btn = e.target; btn.innerText = "UPLOADING..."; btn.disabled = true;
                     try {
-                        const res = await fetch(`https://www.thebluealliance.com/api/v3/event/${this.eventKey}/matches/simple`, { headers: { 'X-TBA-Auth-Key': this.tbaKey } });
-                        const official = await res.json();
-                        const finalBatch = this.pendingSync.map(r => {
-                            const m = official.find(om => om.match_number == r.matchNum && om.comp_level == 'qm');
-                            return { ...r, offAuto: (m && m.score_breakdown) ? m.score_breakdown[r.alliance].autoPoints : '?', offTotal: m ? m.alliances[r.alliance].score : '?' };
-                        });
-                        await fetch(this.sheetUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(finalBatch) });
-                        this.pendingSync = []; localStorage.setItem('mo_sync_v7', '[]'); alert("Sync Successful!");
-                    } catch (err) { alert("Sync Error - check Endpoint URL."); } finally { btn.innerText = "SYNC DATA"; btn.disabled = false; }
-                },
-                saveSettings() { localStorage.setItem('mo_sheet_v7', this.sheetUrl); this.showSettings = false; }
+                        // All data in the object is already normalized to 1/0 or strings
+                        await fetch(this.sheetUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(toSync) });
+                        this.matchHistory.forEach(m => m.synced = 1);
+                        localStorage.setItem('mo_history_v7', JSON.stringify(this.matchHistory));
+                        alert("Sync Complete.");
+                    } catch (err) { alert("Sync Error."); } finally { btn.innerText = "Sync (" + this.unsyncedCount + ")"; btn.disabled = false; }
+                }
             }));
-            Alpine.component('x-slider', { template: '#x-slider' });
         });
     </script>
 </body>
