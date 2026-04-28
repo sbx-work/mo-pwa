@@ -3,31 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>2026 Newton MO PWA v6</title>
+    <title>2026 Newton MO PWA v7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
         [x-cloak] { display: none !important; }
-        body { font-size: 12pt; touch-action: manipulation; background-color: #030712; }
-        input[type="range"] { -webkit-appearance: none; background: #374151; height: 10px; border-radius: 5px; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 26px; width: 26px; border-radius: 50%; background: #3b82f6; border: 2px solid white; }
-        .section-card { border-left-width: 4px; padding-left: 0.75rem; margin-bottom: 1.25rem; }
+        body { font-size: 12pt; touch-action: manipulation; background-color: #030712; height: 100vh; width: 100vw; overflow: hidden; }
+        /* Prevent elastic scrolling on iOS */
+        .no-bounce { overscroll-behavior: none; }
+        input[type="range"] { -webkit-appearance: none; background: #374151; height: 12px; border-radius: 6px; width: 100%; margin: 10px 0; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%; background: #3b82f6; border: 2px solid white; box-shadow: 0 0 8px rgba(0,0,0,0.5); }
+        .section-card { border-left-width: 4px; padding-left: 0.75rem; margin-bottom: 1.5rem; }
+        .scroll-container { height: calc(100vh - 180px); overflow-y: auto; -webkit-overflow-scrolling: touch; }
     </style>
 </head>
-<body class="text-gray-100 h-screen overflow-hidden" x-data="scoutApp()" x-init="initApp()">
+<body class="text-gray-100 flex flex-col no-bounce" x-data="scoutApp()" x-init="initApp()">
 
     <template x-if="!authenticated">
-        <div class="fixed inset-0 z-50 bg-gray-950 flex flex-col items-center justify-center p-6 text-center">
-            <h1 class="text-5xl font-black mb-10 text-blue-600 italic">MO PWA v6</h1>
+        <div class="fixed inset-0 z-[100] bg-gray-950 flex flex-col items-center justify-center p-6 text-center">
+            <h1 class="text-5xl font-black mb-10 text-blue-600 italic">MO PWA v7</h1>
             <input type="password" x-model="passwordInput" @keyup.enter="login()" class="w-full max-w-sm p-5 rounded-2xl bg-gray-800 mb-6 text-center text-2xl border border-gray-700 outline-none focus:border-blue-500" placeholder="Access Code">
             <button @click="login()" class="w-full max-w-sm bg-blue-600 py-5 rounded-2xl font-black text-xl uppercase tracking-widest">Authorize</button>
         </div>
     </template>
 
-    <div class="flex flex-col h-full" x-show="authenticated" x-cloak>
-        <header class="bg-gray-900 border-b border-gray-800 p-4 flex items-center justify-between shadow-2xl z-30">
+    <div class="flex flex-col h-full w-full" x-show="authenticated" x-cloak>
+        <header class="bg-gray-900 border-b border-gray-800 p-4 flex items-center justify-between shadow-2xl shrink-0">
             <div class="flex items-center space-x-6">
-                <h1 class="font-black text-2xl text-blue-600 italic leading-none">NEWTON<br><span class="text-xs text-gray-500 not-italic tracking-widest">OBSERVER</span></h1>
+                <h1 class="font-black text-2xl text-blue-600 italic leading-none">NEWTON<br><span class="text-[10px] text-gray-500 not-italic tracking-widest">SCOUTING v7</span></h1>
                 <div class="flex items-center space-x-2 bg-gray-800 p-1 rounded-xl">
                     <input type="number" x-model="matchNum" @change="fetchTeams()" class="bg-transparent w-16 text-xl font-black text-center outline-none">
                     <div class="flex p-1 space-x-1">
@@ -52,7 +55,7 @@
                         <button @click="formData[index].skip = false" class="bg-blue-600 px-8 py-4 rounded-2xl font-bold uppercase">Restore Robot</button>
                     </div>
 
-                    <div class="p-4 bg-gray-800/50 flex justify-between items-center border-b border-gray-800">
+                    <div class="p-4 bg-gray-800/50 flex justify-between items-center border-b border-gray-800 shrink-0">
                         <div class="flex flex-col">
                             <span class="text-[9px] font-black text-gray-500 uppercase">Team Number</span>
                             <input type="text" x-model="team.number" @focus="if(team.number === '---') team.number = ''" class="bg-transparent text-4xl font-black text-white w-28 outline-none focus:text-blue-500">
@@ -63,29 +66,30 @@
                         </div>
                     </div>
 
-                    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                    <div class="scroll-container p-6 space-y-8">
+                        
                         <section class="section-card border-blue-600">
                             <h3 class="text-xs font-black text-blue-500 uppercase tracking-widest mb-4">Autonomous Period</h3>
-                            <div class="grid grid-cols-2 gap-2 mb-4">
+                            <div class="grid grid-cols-2 gap-2 mb-6">
                                 <button @click="formData[index].autoMove = !formData[index].autoMove" :class="formData[index].autoMove ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-3 rounded-lg text-[10px] font-black uppercase transition-all">Robot Moves?</button>
                                 <button @click="formData[index].autoShootMove = !formData[index].autoShootMove" :class="formData[index].autoShootMove ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-3 rounded-lg text-[10px] font-black uppercase transition-all">Shoot & Move?</button>
                             </div>
                             
-                            <div class="space-y-5">
+                            <div class="space-y-6">
                                 <x-slider label="Preload Accuracy" x-model="formData[index].autoPreloadAcc" color="text-blue-400"></x-slider>
                                 
-                                <div class="flex items-center justify-between bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                                <div class="flex items-center justify-between bg-gray-800/40 p-4 rounded-xl border border-gray-700 shadow-inner">
                                     <span class="text-[10px] font-black uppercase text-gray-400">Post-Preload Sweeps</span>
                                     <div class="flex items-center space-x-4">
-                                        <button @click="if(formData[index].autoSweeps > 0) formData[index].autoSweeps--" class="w-10 h-10 bg-gray-700 rounded-lg font-black">-</button>
-                                        <span class="text-2xl font-black w-8 text-center" x-text="formData[index].autoSweeps"></span>
-                                        <button @click="formData[index].autoSweeps++" class="w-10 h-10 bg-gray-700 rounded-lg font-black">+</button>
+                                        <button @click="if(formData[index].autoSweeps > 0) formData[index].autoSweeps--" class="w-10 h-10 bg-gray-700 rounded-lg font-black text-xl">-</button>
+                                        <span class="text-3xl font-black w-8 text-center" x-text="formData[index].autoSweeps"></span>
+                                        <button @click="formData[index].autoSweeps++" class="w-10 h-10 bg-gray-700 rounded-lg font-black text-xl">+</button>
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-2 mb-2">
-                                    <button @click="formData[index].autoShootAfterSweep = !formData[index].autoShootAfterSweep" :class="formData[index].autoShootAfterSweep ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-2 rounded-lg text-[10px] font-black uppercase">Shoot after sweep?</button>
-                                    <button @click="formData[index].autoSweepMoveShoot = !formData[index].autoSweepMoveShoot" :class="formData[index].autoSweepMoveShoot ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-2 rounded-lg text-[10px] font-black uppercase">Sweep, Move & Shoot?</button>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <button @click="formData[index].autoShootAfterSweep = !formData[index].autoShootAfterSweep" :class="formData[index].autoShootAfterSweep ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-3 rounded-lg text-[10px] font-black uppercase">Shoot after sweep?</button>
+                                    <button @click="formData[index].autoSweepMoveShoot = !formData[index].autoSweepMoveShoot" :class="formData[index].autoSweepMoveShoot ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-3 rounded-lg text-[10px] font-black uppercase">Sweep, Move & Shoot?</button>
                                 </div>
 
                                 <x-slider label="Sweep Shooting Accuracy" x-model="formData[index].autoSweepShootAcc" color="text-blue-400"></x-slider>
@@ -93,10 +97,10 @@
                                 <x-slider label="Shoot & Sweep Accuracy" x-model="formData[index].autoShootSweepAcc" color="text-blue-400"></x-slider>
                                 
                                 <div class="pt-2">
-                                    <span class="text-[10px] font-black uppercase text-gray-500 mb-2 block tracking-widest">Auto Climb?</span>
-                                    <div class="flex space-x-1">
-                                        <template x-for="l in ['X',1,2,3]">
-                                            <button @click="formData[index].autoClimb = l" :class="formData[index].autoClimb == l ? 'bg-blue-600 shadow-lg' : 'bg-gray-800'" class="flex-1 py-3 rounded-lg text-xs font-black transition-all" x-text="l"></button>
+                                    <span class="text-[10px] font-black uppercase text-gray-500 mb-3 block tracking-widest">Auto Climb?</span>
+                                    <div class="flex space-x-2">
+                                        <template x-for="l in ['X', 1, 2, 3]">
+                                            <button @click="formData[index].autoClimb = l" :class="formData[index].autoClimb == l ? 'bg-blue-600 shadow-lg scale-105' : 'bg-gray-800'" class="flex-1 py-4 rounded-xl text-sm font-black transition-all" x-text="l"></button>
                                         </template>
                                     </div>
                                 </div>
@@ -104,7 +108,7 @@
                         </section>
 
                         <section class="section-card border-orange-600">
-                            <h3 class="text-xs font-black text-orange-500 uppercase tracking-widest mb-4">Teleop (Control Period)</h3>
+                            <h3 class="text-xs font-black text-orange-500 uppercase tracking-widest mb-4">Teleop (Control)</h3>
                             <div class="space-y-6">
                                 <x-slider label="Shooting Accuracy" x-model="formData[index].teleAcc" color="text-orange-400"></x-slider>
                                 <x-slider label="Shoot & Sweep Accuracy" x-model="formData[index].teleShootSweepAcc" color="text-orange-400"></x-slider>
@@ -115,61 +119,67 @@
                                 <x-slider label="Software Alignment" x-model="formData[index].teleAutoAlign" color="text-orange-400"></x-slider>
                                 <x-slider label="Opp. Scoop Rating" x-model="formData[index].teleScoop" color="text-orange-400"></x-slider>
                                 
-                                <div class="pt-4 border-t border-gray-800">
-                                    <h4 class="text-[9px] font-black text-gray-500 uppercase mb-3">Defense Capability</h4>
+                                <div class="pt-6 border-t border-gray-800">
+                                    <h4 class="text-[10px] font-black text-gray-500 uppercase mb-4 tracking-widest">Defense Capability</h4>
                                     <x-slider label="Overall Effectiveness" x-model="formData[index].teleDefEff" color="text-red-400"></x-slider>
                                     <x-slider label="Push/Distract Opponent" x-model="formData[index].teleDefPower" color="text-red-400"></x-slider>
                                     <x-slider label="Starvation Effectivity" x-model="formData[index].teleStarve" color="text-red-400"></x-slider>
                                 </div>
 
                                 <div class="pt-2">
-                                    <span class="text-[10px] font-black uppercase text-gray-500 mb-2 block text-center">Final Match Climb</span>
-                                    <div class="flex space-x-1">
-                                        <template x-for="l in ['X',1,2,3]">
-                                            <button @click="formData[index].climbLvl = l" :class="formData[index].climbLvl == l ? 'bg-orange-600' : 'bg-gray-800'" class="flex-1 py-4 rounded-xl text-lg font-black transition-all" x-text="l"></button>
+                                    <span class="text-[10px] font-black uppercase text-gray-500 mb-3 block text-center tracking-widest">Final Match Climb</span>
+                                    <div class="flex space-x-2">
+                                        <template x-for="l in ['X', 1, 2, 3]">
+                                            <button @click="formData[index].climbLvl = l" :class="formData[index].climbLvl == l ? 'bg-orange-600 shadow-lg scale-105' : 'bg-gray-800'" class="flex-1 py-5 rounded-xl text-xl font-black transition-all" x-text="l"></button>
                                         </template>
                                     </div>
                                 </div>
                             </div>
                         </section>
 
-                        <div class="bg-gray-950 p-4 rounded-2xl border border-gray-800">
-                            <span class="text-[9px] font-black text-gray-500 uppercase mb-2 block">Strategic Scouting Notes</span>
-                            <textarea x-model="formData[index].comments" placeholder="Cycle times, driver skill, or failure modes..." class="w-full bg-transparent p-1 rounded-lg h-28 text-sm focus:outline-none resize-none"></textarea>
+                        <div class="bg-gray-950 p-4 rounded-3xl border border-gray-800">
+                            <span class="text-[9px] font-black text-gray-600 uppercase mb-2 block tracking-widest">Observer Notes</span>
+                            <textarea x-model="formData[index].comments" placeholder="Cycle timing, reliability, or key maneuvers..." class="w-full bg-transparent p-1 rounded-lg h-32 text-sm focus:outline-none resize-none"></textarea>
                         </div>
                     </div>
                 </div>
             </template>
         </main>
 
-        <footer class="p-4 bg-gray-900 border-t border-gray-800 flex justify-center">
-            <button @click="submitMatch()" class="w-full max-w-2xl bg-blue-600 hover:bg-blue-500 py-6 rounded-3xl font-black text-3xl uppercase tracking-tighter italic transition-all active:scale-95 shadow-2xl">
-                Submit Match Results
+        <footer class="p-6 bg-gray-900 border-t border-gray-800 flex justify-center shrink-0">
+            <button @click="submitMatch()" class="w-full max-w-4xl bg-blue-600 hover:bg-blue-500 py-6 rounded-3xl font-black text-3xl uppercase tracking-tighter italic transition-all active:scale-95 shadow-2xl shadow-blue-900/20">
+                Submit Match <span x-text="matchNum"></span> Results
             </button>
         </footer>
 
-        <div x-show="showSettings" class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-6" x-transition.opacity x-cloak>
-            <div class="bg-gray-900 p-8 rounded-3xl w-full max-w-md border border-gray-800">
+        <div x-show="showSettings" class="fixed inset-0 z-[110] bg-black/95 flex items-center justify-center p-6" x-transition.opacity x-cloak>
+            <div class="bg-gray-900 p-8 rounded-3xl w-full max-w-md border border-gray-800 shadow-2xl">
                 <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-2xl font-black italic">SYSTEM CONFIG</h2>
-                    <button @click="showSettings = false" class="text-gray-500 text-2xl">&times;</button>
+                    <h2 class="text-2xl font-black italic">CONFIGURATION</h2>
+                    <button @click="showSettings = false" class="text-gray-500 text-3xl">&times;</button>
                 </div>
                 <div class="space-y-6">
-                    <input type="text" x-model="sheetUrl" placeholder="Google Script URL" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 outline-none text-xs font-mono">
-                    <input type="text" x-model="eventKey" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 outline-none text-sm font-mono">
-                    <button @click="saveSettings()" class="w-full bg-blue-600 py-4 rounded-xl font-black uppercase">Save Configuration</button>
+                    <div>
+                        <label class="text-[10px] font-black text-gray-500 uppercase mb-2 block">Google Script Endpoint</label>
+                        <input type="text" x-model="sheetUrl" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 outline-none text-xs font-mono">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-gray-500 uppercase mb-2 block">Division Key</label>
+                        <input type="text" x-model="eventKey" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 outline-none text-sm font-mono">
+                    </div>
+                    <button @click="saveSettings()" class="w-full bg-blue-600 py-5 rounded-2xl font-black uppercase tracking-widest shadow-xl">Update System</button>
                 </div>
             </div>
         </div>
     </div>
 
     <template id="x-slider">
-        <div class="mb-2">
-            <div class="flex justify-between text-[10px] mb-1 font-black uppercase tracking-tighter">
-                <span class="text-gray-500" x-text="label"></span>
-                <span :class="color" x-text="$el.parentElement.querySelector('input').value"></span>
+        <div class="w-full">
+            <div class="flex justify-between items-end mb-1">
+                <span class="text-[10px] font-black uppercase text-gray-500 tracking-tighter" x-text="label"></span>
+                <span class="text-lg font-black" :class="color" x-text="$el.parentElement.querySelector('input').value"></span>
             </div>
-            <input type="range" min="0" max="10" @input="$el.parentElement.querySelector('span:last-child').innerText = $el.value" class="w-full">
+            <input type="range" min="0" max="10" @input="$el.parentElement.querySelector('span:last-child').innerText = $el.value">
         </div>
     </template>
 
@@ -177,13 +187,17 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('scoutApp', () => ({
                 authenticated: false, passwordInput: '', showSettings: false, matchNum: 1, alliance: 'red',
-                eventKey: '2026new', sheetUrl: localStorage.getItem('mo_sheet_v6') || '',
+                eventKey: '2026new', sheetUrl: localStorage.getItem('mo_sheet_v7') || '',
                 tbaKey: '0DRn5X0aCfSzLQiG4HyL8r0ncrjhzRKgFj5bZEfrFjCdfe2NB653OI7rg76wkyJ5',
                 teams: [{number: '---', name: ''},{number: '---', name: ''},{number: '---', name: ''}],
-                formData: [], pendingSync: JSON.parse(localStorage.getItem('mo_sync_v6') || '[]'),
+                formData: [], pendingSync: JSON.parse(localStorage.getItem('mo_sync_v7') || '[]'),
 
-                initApp() { this.resetFormData(); this.fetchTeams(); if(localStorage.getItem('mo_auth_v6')==='true') this.authenticated=true; },
-                login() { if(this.passwordInput === 'Newton2026') { this.authenticated=true; localStorage.setItem('mo_auth_v6','true'); } },
+                initApp() { 
+                    this.resetFormData(); 
+                    this.fetchTeams(); 
+                    if(localStorage.getItem('mo_auth_v7')==='true') this.authenticated=true; 
+                },
+                login() { if(this.passwordInput === 'Newton2026') { this.authenticated=true; localStorage.setItem('mo_auth_v7','true'); } },
                 resetFormData() {
                     this.formData = Array.from({ length: 3 }, () => ({
                         autoMove: false, autoShootMove: false, autoShootAfterSweep: false, autoSweepMoveShoot: false,
@@ -197,7 +211,7 @@
                         const res = await fetch(`https://www.thebluealliance.com/api/v3/event/${this.eventKey}/matches/simple`, { headers: { 'X-TBA-Auth-Key': this.tbaKey } });
                         const match = (await res.json()).find(m => m.match_number == this.matchNum && m.comp_level == 'qm');
                         if (match) this.teams = match.alliances[this.alliance].team_keys.map(k => ({ number: k.replace('frc', ''), name: `Team ${k.replace('frc', '')}` }));
-                    } catch (e) { console.warn("TBA connection lost"); }
+                    } catch (e) { console.warn("TBA Offline"); }
                 },
                 submitMatch() {
                     this.teams.forEach((t, i) => {
@@ -213,13 +227,16 @@
                             });
                         }
                     });
-                    localStorage.setItem('mo_sync_v6', JSON.stringify(this.pendingSync));
-                    this.matchNum++; this.resetFormData(); this.fetchTeams();
-                    window.scrollTo(0,0);
+                    localStorage.setItem('mo_sync_v7', JSON.stringify(this.pendingSync));
+                    this.matchNum++; 
+                    this.resetFormData(); 
+                    this.fetchTeams();
+                    // Reset scroll to top of card
+                    document.querySelectorAll('.scroll-container').forEach(el => el.scrollTop = 0);
                 },
                 async syncData(e) {
-                    if(!this.sheetUrl) return alert("Sheet URL missing!");
-                    const btn = e.target; btn.innerText = "UPDATING...";
+                    if(!this.sheetUrl) return alert("Endpoint URL missing in Settings!");
+                    const btn = e.target; btn.innerText = "UPDATING..."; btn.disabled = true;
                     try {
                         const res = await fetch(`https://www.thebluealliance.com/api/v3/event/${this.eventKey}/matches/simple`, { headers: { 'X-TBA-Auth-Key': this.tbaKey } });
                         const official = await res.json();
@@ -228,10 +245,10 @@
                             return { ...r, offAuto: (m && m.score_breakdown) ? m.score_breakdown[r.alliance].autoPoints : '?', offTotal: m ? m.alliances[r.alliance].score : '?' };
                         });
                         await fetch(this.sheetUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(finalBatch) });
-                        this.pendingSync = []; localStorage.setItem('mo_sync_v6', '[]'); alert("Sync Successful!");
-                    } catch (err) { alert("Sync Failed - Cache Saved"); } finally { btn.innerText = "SYNC DATA"; }
+                        this.pendingSync = []; localStorage.setItem('mo_sync_v7', '[]'); alert("Sync Successful!");
+                    } catch (err) { alert("Sync Error - check Endpoint URL."); } finally { btn.innerText = "SYNC DATA"; btn.disabled = false; }
                 },
-                saveSettings() { localStorage.setItem('mo_sheet_v6', this.sheetUrl); this.showSettings = false; }
+                saveSettings() { localStorage.setItem('mo_sheet_v7', this.sheetUrl); this.showSettings = false; }
             }));
             Alpine.component('x-slider', { template: '#x-slider' });
         });
