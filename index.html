@@ -10,364 +10,215 @@
         [x-cloak] { display: none !important; }
         body { font-size: 12pt; touch-action: manipulation; background-color: #030712; }
         input[type="range"] { -webkit-appearance: none; background: #374151; height: 10px; border-radius: 5px; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 26px; width: 26px; border-radius: 50%; background: #3b82f6; border: 2px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; height: 26px; width: 26px; border-radius: 50%; background: #3b82f6; border: 2px solid white; }
         .section-card { border-left-width: 4px; padding-left: 0.75rem; margin-bottom: 1.25rem; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #111827; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
     </style>
 </head>
 <body class="text-gray-100 h-screen overflow-hidden" x-data="scoutApp()" x-init="initApp()">
 
-    <!-- Login Overlay -->
     <template x-if="!authenticated">
         <div class="fixed inset-0 z-50 bg-gray-950 flex flex-col items-center justify-center p-6 text-center">
-            <h1 class="text-5xl font-black mb-2 text-blue-600 tracking-tighter italic">MO PWA</h1>
-            <p class="text-gray-500 mb-10 font-bold uppercase tracking-widest">2026 Newton Championship</p>
-            <div class="w-full max-w-sm bg-gray-900 p-8 rounded-3xl border border-gray-800 shadow-2xl">
-                <input type="password" x-model="passwordInput" @keyup.enter="login()" class="w-full p-5 rounded-2xl bg-gray-800 mb-6 text-center text-2xl border border-gray-700 outline-none focus:border-blue-500 transition-all" placeholder="Access Code">
-                <button @click="login()" class="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black text-xl uppercase tracking-widest transition-all active:scale-95">Authorize</button>
-            </div>
+            <h1 class="text-5xl font-black mb-10 text-blue-600 italic">MO PWA</h1>
+            <input type="password" x-model="passwordInput" @keyup.enter="login()" class="w-full max-w-sm p-5 rounded-2xl bg-gray-800 mb-6 text-center text-2xl border border-gray-700 outline-none focus:border-blue-500" placeholder="Access Code">
+            <button @click="login()" class="w-full max-w-sm bg-blue-600 py-5 rounded-2xl font-black text-xl uppercase tracking-widest">Authorize</button>
         </div>
     </template>
 
     <div class="flex flex-col h-full" x-show="authenticated" x-cloak>
-        <!-- Header -->
         <header class="bg-gray-900 border-b border-gray-800 p-4 flex items-center justify-between shadow-2xl z-30">
-            <div class="flex items-center space-x-8">
-                <div>
-                    <h1 class="font-black text-2xl text-blue-600 leading-none">NEWTON</h1>
-                    <span class="text-[10px] text-gray-500 font-bold tracking-widest">MATCH OBSERVER</span>
-                </div>
-                
-                <div class="flex items-center space-x-4 bg-gray-800 p-2 rounded-2xl border border-gray-700">
-                    <div class="flex flex-col items-center px-2">
-                        <span class="text-[9px] text-gray-500 font-black uppercase">Match</span>
-                        <input type="number" x-model="matchNum" @change="fetchTeams()" class="bg-transparent w-16 text-2xl font-black text-center outline-none">
-                    </div>
-                    <div class="h-10 w-px bg-gray-700"></div>
+            <div class="flex items-center space-x-6">
+                <h1 class="font-black text-2xl text-blue-600 italic">NEWTON MO</h1>
+                <div class="flex items-center space-x-2 bg-gray-800 p-1 rounded-xl">
+                    <input type="number" x-model="matchNum" @change="fetchTeams()" class="bg-transparent w-16 text-xl font-black text-center outline-none">
                     <div class="flex p-1 space-x-1">
-                        <button @click="alliance = 'red'; fetchTeams()" :class="alliance === 'red' ? 'bg-red-600 shadow-lg scale-105' : 'text-gray-500 hover:text-gray-300'" class="px-6 py-2 rounded-xl font-black text-sm transition-all uppercase">Red</button>
-                        <button @click="alliance = 'blue'; fetchTeams()" :class="alliance === 'blue' ? 'bg-blue-600 shadow-lg scale-105' : 'text-gray-500 hover:text-gray-300'" class="px-6 py-2 rounded-xl font-black text-sm transition-all uppercase">Blue</button>
+                        <button @click="alliance = 'red'; fetchTeams()" :class="alliance === 'red' ? 'bg-red-600 shadow-lg' : 'text-gray-500'" class="px-4 py-1 rounded-lg font-black text-xs uppercase transition-all">Red</button>
+                        <button @click="alliance = 'blue'; fetchTeams()" :class="alliance === 'blue' ? 'bg-blue-600 shadow-lg' : 'text-gray-500'" class="px-4 py-1 rounded-lg font-black text-xs uppercase transition-all">Blue</button>
                     </div>
                 </div>
             </div>
-
             <div class="flex items-center space-x-4">
-                <button @click="showSettings = true" class="p-3 bg-gray-800 rounded-full text-gray-400 hover:bg-gray-700 transition-colors">⚙️</button>
-                <button @click="syncData($event)" :class="pendingSync.length > 0 ? 'bg-orange-600 animate-pulse' : 'bg-green-700'" class="px-8 py-3 rounded-2xl font-black text-sm shadow-lg hover:brightness-110 transition-all">
-                    SYNC <span class="bg-black/20 px-2 py-0.5 rounded ml-1" x-text="Math.floor(pendingSync.length/3)"></span>
+                <button @click="showSettings = true" class="p-2 text-gray-500">⚙️</button>
+                <button @click="syncData($event)" :class="pendingSync.length > 0 ? 'bg-orange-600 animate-pulse' : 'bg-green-700'" class="px-6 py-2 rounded-xl font-black text-xs shadow-lg">
+                    SYNC (<span x-text="Math.floor(pendingSync.length/3)"></span>)
                 </button>
             </div>
         </header>
 
-        <!-- Main Dashboard -->
-        <main class="flex-1 overflow-x-auto p-4 flex space-x-4 bg-gray-950 custom-scrollbar">
+        <main class="flex-1 overflow-x-auto p-4 flex space-x-4 bg-gray-950">
             <template x-for="(team, index) in teams" :key="index">
                 <div class="relative flex-1 min-w-[400px] bg-gray-900 rounded-3xl flex flex-col border-b-8 shadow-2xl overflow-hidden" :class="alliance === 'red' ? 'border-red-600' : 'border-blue-600'">
                     
-                    <!-- Skip Overlay -->
                     <div x-show="formData[index].skip" class="absolute inset-0 z-20 bg-gray-950/95 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center">
-                        <div class="bg-red-900/20 p-6 rounded-full mb-4">🚫</div>
-                        <h2 class="text-2xl font-black text-gray-500 mb-6 uppercase">Observation Skipped</h2>
-                        <button @click="formData[index].skip = false" class="bg-blue-600 px-8 py-4 rounded-2xl font-bold uppercase tracking-widest shadow-xl active:scale-95 transition-all">Restore Entry</button>
+                        <button @click="formData[index].skip = false" class="bg-blue-600 px-8 py-4 rounded-2xl font-bold uppercase">Restore Entry</button>
                     </div>
 
-                    <!-- Team Banner -->
                     <div class="p-4 bg-gray-800/50 flex justify-between items-center border-b border-gray-800">
                         <div class="flex flex-col">
-                            <span class="text-[10px] font-black text-gray-500 uppercase tracking-tighter">Team Number</span>
-                            <input type="text" x-model="team.number" class="bg-transparent text-4xl font-black text-white w-28 outline-none focus:text-blue-500 transition-colors">
+                            <span class="text-[9px] font-black text-gray-500 uppercase">Team Number</span>
+                            <input type="text" x-model="team.number" @focus="if(team.number === '---') team.number = ''" class="bg-transparent text-4xl font-black text-white w-28 outline-none focus:text-blue-500">
                         </div>
                         <div class="text-right flex flex-col items-end">
-                            <button @click="formData[index].skip = true" class="text-[10px] bg-red-600/10 text-red-500 px-3 py-1 rounded-full font-black uppercase mb-2 hover:bg-red-600/20 transition-all">Skip Robot</button>
+                            <button @click="formData[index].skip = true" class="text-[9px] bg-red-600/10 text-red-500 px-3 py-1 rounded-full font-black uppercase mb-1">Skip Robot</button>
                             <input type="text" x-model="team.name" class="bg-transparent text-sm text-blue-400 font-bold text-right w-44 outline-none italic">
                         </div>
                     </div>
 
-                    <!-- Input Form -->
-                    <div class="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-                        
-                        <!-- Auto -->
+                    <div class="flex-1 overflow-y-auto p-6 space-y-6">
                         <section class="section-card border-blue-600">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-xs font-black text-blue-500 uppercase tracking-widest">Autonomous Period</h3>
-                                <span class="bg-blue-600/10 text-blue-500 text-[9px] font-black px-2 py-0.5 rounded">15s</span>
+                            <h3 class="text-xs font-black text-blue-500 uppercase tracking-widest mb-4">Autonomous</h3>
+                            <div class="grid grid-cols-2 gap-2 mb-4">
+                                <button @click="formData[index].autoMove = !formData[index].autoMove" :class="formData[index].autoMove ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-2 rounded-lg text-[10px] font-black uppercase">Robot Moves?</button>
+                                <button @click="formData[index].autoShootMove = !formData[index].autoShootMove" :class="formData[index].autoShootMove ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-2 rounded-lg text-[10px] font-black uppercase">Shoot & Move?</button>
                             </div>
-                            
-                            <div class="grid grid-cols-2 gap-3 mb-6">
-                                <button @click="formData[index].autoMove = !formData[index].autoMove" :class="formData[index].autoMove ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-800 text-gray-500 border border-gray-700'" class="py-3 rounded-xl text-[10px] font-black uppercase transition-all">Robot Moves?</button>
-                                <button @click="formData[index].autoShootMove = !formData[index].autoShootMove" :class="formData[index].autoShootMove ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-800 text-gray-500 border border-gray-700'" class="py-3 rounded-xl text-[10px] font-black uppercase transition-all">Shoot & Move?</button>
-                                <button @click="formData[index].autoShootAfterSweep = !formData[index].autoShootAfterSweep" :class="formData[index].autoShootAfterSweep ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-800 text-gray-500 border border-gray-700'" class="py-3 rounded-xl text-[10px] font-black uppercase transition-all">Shoot after sweep?</button>
-                                <button @click="formData[index].autoSweepMoveShoot = !formData[index].autoSweepMoveShoot" :class="formData[index].autoSweepMoveShoot ? 'bg-green-600 text-white shadow-lg' : 'bg-gray-800 text-gray-500 border border-gray-700'" class="py-3 rounded-xl text-[10px] font-black uppercase transition-all">Sweep, Move & Shoot?</button>
-                            </div>
-
-                            <div class="space-y-6">
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Preload Accuracy</span><span class="text-blue-500 text-lg" x-text="formData[index].autoPreloadAcc"></span></div>
-                                    <input type="range" min="1" max="10" x-model="formData[index].autoPreloadAcc" class="w-full">
-                                </div>
-
-                                <div class="flex items-center justify-between bg-gray-800/50 p-4 rounded-2xl border border-gray-700 shadow-inner">
-                                    <span class="text-xs font-black uppercase text-gray-400">Post-Preload Sweeps</span>
-                                    <div class="flex items-center space-x-5">
-                                        <button @click="if(formData[index].autoSweeps > 0) formData[index].autoSweeps--" class="w-10 h-10 bg-gray-700 rounded-xl text-xl font-black shadow-md hover:bg-gray-600">-</button>
-                                        <span class="text-3xl font-black w-8 text-center" x-text="formData[index].autoSweeps"></span>
-                                        <button @click="formData[index].autoSweeps++" class="w-10 h-10 bg-gray-700 rounded-xl text-xl font-black shadow-md hover:bg-gray-600">+</button>
+                            <div class="space-y-5">
+                                <x-slider label="Preload Accuracy" x-model="formData[index].autoPreloadAcc" color="text-blue-400"></x-slider>
+                                
+                                <div class="flex items-center justify-between bg-gray-800/50 p-3 rounded-xl border border-gray-700">
+                                    <span class="text-[10px] font-black uppercase text-gray-400">Post-Preload Sweeps</span>
+                                    <div class="flex items-center space-x-4">
+                                        <button @click="if(formData[index].autoSweeps > 0) formData[index].autoSweeps--" class="w-8 h-8 bg-gray-700 rounded-lg font-black">-</button>
+                                        <span class="text-xl font-black w-6 text-center" x-text="formData[index].autoSweeps"></span>
+                                        <button @click="formData[index].autoSweeps++" class="w-8 h-8 bg-gray-700 rounded-lg font-black">+</button>
                                     </div>
                                 </div>
 
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Post Sweep Acc</span><span class="text-blue-500 text-lg" x-text="formData[index].autoPostSweepAcc"></span></div>
-                                    <input type="range" min="0" max="10" x-model="formData[index].autoPostSweepAcc" class="w-full">
+                                <div class="grid grid-cols-2 gap-2 mb-2">
+                                    <button @click="formData[index].autoShootAfterSweep = !formData[index].autoShootAfterSweep" :class="formData[index].autoShootAfterSweep ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-2 rounded-lg text-[10px] font-black uppercase">Shoot after sweep?</button>
+                                    <button @click="formData[index].autoSweepMoveShoot = !formData[index].autoSweepMoveShoot" :class="formData[index].autoSweepMoveShoot ? 'bg-green-600' : 'bg-gray-800 text-gray-500'" class="py-2 rounded-lg text-[10px] font-black uppercase">Sweep, Move & Shoot?</button>
                                 </div>
 
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Post Sweep Align</span><span class="text-blue-500 text-lg" x-text="formData[index].autoPostSweepAlign"></span></div>
-                                    <input type="range" min="0" max="10" x-model="formData[index].autoPostSweepAlign" class="w-full">
-                                </div>
-
-                                <div>
-                                    <span class="text-[10px] uppercase text-gray-500 font-black mb-3 block tracking-widest">Auto Climb Level</span>
-                                    <div class="flex space-x-2">
-                                        <template x-for="l in [0,1,2,3]">
-                                            <button @click="formData[index].autoClimb = l" :class="formData[index].autoClimb == l ? 'bg-blue-600 text-white shadow-lg scale-105' : 'bg-gray-800 text-gray-500'" class="flex-1 py-3 rounded-xl text-sm font-black transition-all" x-text="l == 0 ? 'NONE' : l"></button>
-                                        </template>
-                                    </div>
+                                <x-slider label="Sweep Shooting Accuracy" x-model="formData[index].autoSweepShootAcc" color="text-blue-400"></x-slider>
+                                <x-slider label="Post Sweep Align" x-model="formData[index].autoPostSweepAlign" color="text-blue-400"></x-slider>
+                                <x-slider label="Shoot & Sweep Accuracy" x-model="formData[index].autoShootSweepAcc" color="text-blue-400"></x-slider>
+                                
+                                <div class="flex space-x-1">
+                                    <template x-for="l in [0,1,2,3]">
+                                        <button @click="formData[index].autoClimb = l" :class="formData[index].autoClimb == l ? 'bg-blue-600 shadow-lg' : 'bg-gray-800'" class="flex-1 py-2 rounded-lg text-xs font-black transition-all" x-text="'AUTO '+l"></button>
+                                    </template>
                                 </div>
                             </div>
                         </section>
 
-                        <!-- Teleop -->
                         <section class="section-card border-orange-600">
-                            <div class="flex items-center justify-between mb-4">
-                                <h3 class="text-xs font-black text-orange-500 uppercase tracking-widest">Teleop Period</h3>
-                                <span class="bg-orange-600/10 text-orange-500 text-[9px] font-black px-2 py-0.5 rounded">135s</span>
-                            </div>
-                            
-                            <div class="space-y-6">
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Shooting Acc</span><span class="text-orange-500 text-lg" x-text="formData[index].teleAcc"></span></div>
-                                    <input type="range" min="1" max="10" x-model="formData[index].teleAcc" class="w-full">
+                            <h3 class="text-xs font-black text-orange-500 uppercase tracking-widest mb-4">Teleop</h3>
+                            <div class="space-y-5">
+                                <x-slider label="Shooting Accuracy" x-model="formData[index].teleAcc" color="text-orange-400"></x-slider>
+                                <x-slider label="Shoot & Sweep Accuracy" x-model="formData[index].teleShootSweepAcc" color="text-orange-400"></x-slider>
+                                <x-slider label="Score Rate" x-model="formData[index].teleScore" color="text-orange-400"></x-slider>
+                                <x-slider label="Score on Move" x-model="formData[index].teleScoreMove" color="text-orange-400"></x-slider>
+                                <x-slider label="Under Pressure Acc" x-model="formData[index].telePressureAcc" color="text-orange-400"></x-slider>
+                                <x-slider label="Software Align" x-model="formData[index].teleAutoAlign" color="text-orange-400"></x-slider>
+                                <x-slider label="Opp. Scoop Rating" x-model="formData[index].teleScoop" color="text-orange-400"></x-slider>
+                                
+                                <div class="pt-2 border-t border-gray-800">
+                                    <x-slider label="Overall Def Effect" x-model="formData[index].teleDefEff" color="text-red-400"></x-slider>
+                                    <x-slider label="Push/Distract Opponent?" x-model="formData[index].teleDefPower" color="text-red-400"></x-slider>
+                                    <x-slider label="Starvation Effectivity" x-model="formData[index].teleStarve" color="text-red-400"></x-slider>
                                 </div>
 
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Score Rate</span><span class="text-orange-500 text-lg" x-text="formData[index].teleScore"></span></div>
-                                    <input type="range" min="0" max="10" x-model="formData[index].teleScore" class="w-full">
-                                </div>
-
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Score on Move</span><span class="text-orange-500 text-lg" x-text="formData[index].teleScoreMove"></span></div>
-                                    <input type="range" min="0" max="10" x-model="formData[index].teleScoreMove" class="w-full">
-                                </div>
-
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Under Pressure Acc</span><span class="text-orange-500 text-lg" x-text="formData[index].telePressureAcc"></span></div>
-                                    <input type="range" min="0" max="10" x-model="formData[index].telePressureAcc" class="w-full">
-                                </div>
-
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Software Alignment</span><span class="text-orange-500 text-lg" x-text="formData[index].teleAutoAlign"></span></div>
-                                    <input type="range" min="0" max="10" x-model="formData[index].teleAutoAlign" class="w-full">
-                                </div>
-
-                                <div>
-                                    <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Opp. Scoop Rating</span><span class="text-orange-500 text-lg" x-text="formData[index].teleScoop"></span></div>
-                                    <input type="range" min="0" max="10" x-model="formData[index].teleScoop" class="w-full">
-                                </div>
-
-                                <div class="pt-4 border-t border-gray-800">
-                                    <h4 class="text-[10px] text-gray-500 font-black uppercase mb-4 tracking-widest">Defense Assessment</h4>
-                                    <div class="space-y-6">
-                                        <div>
-                                            <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Overall Effect</span><span class="text-red-500 text-lg" x-text="formData[index].teleDefEff"></span></div>
-                                            <input type="range" min="0" max="10" x-model="formData[index].teleDefEff" class="w-full">
-                                        </div>
-                                        <div>
-                                            <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Push/Distract Opponent?</span><span class="text-red-500 text-lg" x-text="formData[index].teleDefPower"></span></div>
-                                            <input type="range" min="0" max="10" x-model="formData[index].teleDefPower" class="w-full">
-                                        </div>
-                                        <div>
-                                            <div class="flex justify-between text-[11px] mb-2 font-bold"><span class="text-gray-400 uppercase">Starvation Effectivity</span><span class="text-red-500 text-lg" x-text="formData[index].teleStarve"></span></div>
-                                            <input type="range" min="0" max="10" x-model="formData[index].teleStarve" class="w-full">
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <span class="text-[10px] uppercase text-gray-500 font-black mb-3 block tracking-widest text-center">Match End Climb Success</span>
-                                    <div class="flex space-x-2">
-                                        <template x-for="l in [0,1,2,3]">
-                                            <button @click="formData[index].climbLvl = l" :class="formData[index].climbLvl == l ? 'bg-orange-600 text-white shadow-lg scale-105' : 'bg-gray-800 text-gray-500'" class="flex-1 py-4 rounded-xl text-lg font-black transition-all" x-text="l == 0 ? 'X' : l"></button>
-                                        </template>
-                                    </div>
+                                <div class="flex space-x-1">
+                                    <template x-for="l in [0,1,2,3]">
+                                        <button @click="formData[index].climbLvl = l" :class="formData[index].climbLvl == l ? 'bg-orange-600' : 'bg-gray-800'" class="flex-1 py-3 rounded-lg text-lg font-black transition-all" x-text="l == 0 ? 'X' : l"></button>
+                                    </template>
                                 </div>
                             </div>
                         </section>
 
-                        <div class="bg-gray-950 p-4 rounded-3xl border border-gray-800">
-                            <span class="text-[9px] font-black text-gray-600 uppercase mb-2 block">Observer Comments</span>
-                            <textarea x-model="formData[index].comments" placeholder="Note cycle trends, reliability, or key strategic maneuvers..." class="w-full bg-transparent p-1 rounded-lg h-28 text-sm focus:outline-none custom-scrollbar resize-none"></textarea>
-                        </div>
+                        <textarea x-model="formData[index].comments" placeholder="Cycle notes..." class="w-full bg-gray-950 p-3 rounded-2xl h-24 text-xs focus:outline-none border border-gray-800"></textarea>
                     </div>
                 </div>
             </template>
         </main>
 
-        <!-- Global Actions -->
-        <footer class="p-6 bg-gray-900 border-t border-gray-800 flex justify-center shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
-            <button @click="submitMatch()" class="w-full max-w-4xl bg-blue-600 hover:bg-blue-500 py-6 rounded-3xl font-black text-3xl shadow-2xl transition-transform active:scale-95 uppercase tracking-tighter italic">
+        <footer class="p-4 bg-gray-900 border-t border-gray-800 flex justify-center">
+            <button @click="submitMatch()" class="w-full max-w-2xl bg-blue-600 py-6 rounded-3xl font-black text-2xl uppercase tracking-tighter italic transition-all active:scale-95">
                 Save & Next Match
             </button>
         </footer>
 
-        <!-- Settings Drawer -->
-        <div x-show="showSettings" class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-6" x-transition.opacity x-cloak>
-            <div class="bg-gray-900 p-8 rounded-3xl w-full max-w-md border border-gray-800 shadow-2xl">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-2xl font-black uppercase italic">System Config</h2>
-                    <button @click="showSettings = false" class="text-gray-500 text-3xl">&times;</button>
-                </div>
+        <div x-show="showSettings" class="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-6" x-cloak>
+            <div class="bg-gray-900 p-8 rounded-3xl w-full max-w-md border border-gray-800">
+                <h2 class="text-2xl font-black mb-8 italic">CONFIG</h2>
                 <div class="space-y-6">
-                    <div>
-                        <label class="text-[10px] font-black text-gray-500 uppercase block mb-2">Google Apps Script URL</label>
-                        <input type="text" x-model="sheetUrl" placeholder="https://script.google.com/..." class="w-full p-4 bg-gray-800 rounded-2xl border border-gray-700 outline-none focus:border-blue-500 font-mono text-xs">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-black text-gray-500 uppercase block mb-2">TBA Division Key</label>
-                        <input type="text" x-model="eventKey" class="w-full p-4 bg-gray-800 rounded-2xl border border-gray-700 outline-none focus:border-blue-500 font-mono text-sm">
-                    </div>
-                    <div class="pt-4">
-                        <button @click="saveSettings()" class="w-full bg-blue-600 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg">Save Changes</button>
-                    </div>
+                    <input type="text" x-model="sheetUrl" placeholder="Google Script URL" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 outline-none text-xs font-mono">
+                    <input type="text" x-model="eventKey" class="w-full p-4 bg-gray-800 rounded-xl border border-gray-700 outline-none text-sm font-mono">
+                    <button @click="saveSettings()" class="w-full bg-blue-600 py-4 rounded-xl font-black uppercase">Save</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <template id="x-slider">
+        <div class="mb-2">
+            <div class="flex justify-between text-[10px] mb-1 font-black uppercase tracking-tighter">
+                <span class="text-gray-500" x-text="label"></span>
+                <span :class="color" x-text="$el.parentElement.querySelector('input').value"></span>
+            </div>
+            <input type="range" min="0" max="10" @input="$el.parentElement.querySelector('span:last-child').innerText = $el.value" class="w-full">
+        </div>
+    </template>
+
     <script>
-        function scoutApp() {
-            return {
-                authenticated: false,
-                passwordInput: '',
-                showSettings: false,
-                matchNum: 1,
-                alliance: 'red',
-                eventKey: '2026new',
-                sheetUrl: localStorage.getItem('mo_sheet_v4') || '',
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('scoutApp', () => ({
+                authenticated: false, passwordInput: '', showSettings: false, matchNum: 1, alliance: 'red',
+                eventKey: '2026new', sheetUrl: localStorage.getItem('mo_sheet_v5') || '',
                 tbaKey: '0DRn5X0aCfSzLQiG4HyL8r0ncrjhzRKgFj5bZEfrFjCdfe2NB653OI7rg76wkyJ5',
                 teams: [{number: '---', name: ''},{number: '---', name: ''},{number: '---', name: ''}],
-                formData: [],
-                pendingSync: JSON.parse(localStorage.getItem('mo_sync_v4') || '[]'),
+                formData: [], pendingSync: JSON.parse(localStorage.getItem('mo_sync_v5') || '[]'),
 
-                initApp() {
-                    this.resetFormData();
-                    this.fetchTeams();
-                    if(localStorage.getItem('mo_auth_v4') === 'true') this.authenticated = true;
-                },
-
-                login() {
-                    if (this.passwordInput === 'Newton2026') {
-                        this.authenticated = true;
-                        localStorage.setItem('mo_auth_v4', 'true');
-                    } else {
-                        alert('Invalid Access Key');
-                    }
-                },
-
+                initApp() { this.resetFormData(); this.fetchTeams(); if(localStorage.getItem('mo_auth_v5')==='true') this.authenticated=true; },
+                login() { if(this.passwordInput === 'Newton2026') { this.authenticated=true; localStorage.setItem('mo_auth_v5','true'); } },
                 resetFormData() {
                     this.formData = Array.from({ length: 3 }, () => ({
                         autoMove: false, autoShootMove: false, autoShootAfterSweep: false, autoSweepMoveShoot: false,
-                        autoPreloadAcc: 5, autoSweeps: 0, autoPostSweepAcc: 0, autoPostSweepAlign: 0, autoClimb: 0,
-                        teleAcc: 5, teleScore: 5, teleScoreMove: 0, telePressureAcc: 0, teleAutoAlign: 0, teleScoop: 0, 
+                        autoPreloadAcc: 5, autoSweeps: 0, autoSweepShootAcc: 0, autoPostSweepAlign: 0, autoShootSweepAcc: 0, autoClimb: 0,
+                        teleAcc: 5, teleShootSweepAcc: 0, teleScore: 5, teleScoreMove: 0, telePressureAcc: 0, teleAutoAlign: 0, teleScoop: 0, 
                         teleDefEff: 0, teleDefPower: 0, teleStarve: 0, climbLvl: 0, comments: '', skip: false
                     }));
                 },
-
                 async fetchTeams() {
                     try {
-                        const res = await fetch(`https://www.thebluealliance.com/api/v3/event/${this.eventKey}/matches/simple`, {
-                            headers: { 'X-TBA-Auth-Key': this.tbaKey }
-                        });
-                        const matches = await res.json();
-                        const match = matches.find(m => m.match_number == this.matchNum && m.comp_level == 'qm');
-                        if (match) {
-                            const keys = match.alliances[this.alliance].team_keys;
-                            this.teams = keys.map(k => ({ number: k.replace('frc', ''), name: `Team ${k.replace('frc', '')}` }));
-                        }
-                    } catch (e) { 
-                        console.warn("TBA connection failed - switching to manual mode"); 
-                    }
+                        const res = await fetch(`https://www.thebluealliance.com/api/v3/event/${this.eventKey}/matches/simple`, { headers: { 'X-TBA-Auth-Key': this.tbaKey } });
+                        const match = (await res.json()).find(m => m.match_number == this.matchNum && m.comp_level == 'qm');
+                        if (match) this.teams = match.alliances[this.alliance].team_keys.map(k => ({ number: k.replace('frc', ''), name: `Team ${k.replace('frc', '')}` }));
+                    } catch (e) { console.warn("Offline"); }
                 },
-
                 submitMatch() {
                     this.teams.forEach((t, i) => {
                         if (!this.formData[i].skip) {
+                            const d = this.formData[i];
                             this.pendingSync.push({
-                                matchNum: this.matchNum,
-                                teamNum: t.number,
-                                alliance: this.alliance,
-                                ...this.formData[i],
+                                matchNum: this.matchNum, teamNum: t.number, alliance: this.alliance, ...d,
+                                // Binary-to-numeric conversion for spreadsheet
+                                autoMoveNum: d.autoMove ? 1 : 0,
+                                autoShootMoveNum: d.autoShootMove ? 1 : 0,
+                                autoShootAfterSweepNum: d.autoShootAfterSweep ? 1 : 0,
+                                autoSweepMoveShootNum: d.autoSweepMoveShoot ? 1 : 0,
                                 timestamp: new Date().toLocaleString()
                             });
                         }
                     });
-                    localStorage.setItem('mo_sync_v4', JSON.stringify(this.pendingSync));
-                    this.matchNum++;
-                    this.resetFormData();
-                    this.fetchTeams();
-                    window.scrollTo(0,0);
+                    localStorage.setItem('mo_sync_v5', JSON.stringify(this.pendingSync));
+                    this.matchNum++; this.resetFormData(); this.fetchTeams();
                 },
-
                 async syncData(e) {
-                    if (!this.sheetUrl) return alert("Please configure the Google Sheets URL in settings.");
-                    const btn = e.target;
-                    const originalText = btn.innerText;
-                    btn.innerText = "UPDATING...";
-                    btn.disabled = true;
-
+                    const btn = e.target; btn.innerText = "UPDATING...";
                     try {
-                        // Fetch match results for enrichment
-                        const res = await fetch(`https://www.thebluealliance.com/api/v3/event/${this.eventKey}/matches/simple`, {
-                            headers: { 'X-TBA-Auth-Key': this.tbaKey }
+                        const res = await fetch(`https://www.thebluealliance.com/api/v3/event/${this.eventKey}/matches/simple`, { headers: { 'X-TBA-Auth-Key': this.tbaKey } });
+                        const official = await res.json();
+                        const finalBatch = this.pendingSync.map(r => {
+                            const m = official.find(om => om.match_number == r.matchNum && om.comp_level == 'qm');
+                            return { ...r, offAuto: (m && m.score_breakdown) ? m.score_breakdown[r.alliance].autoPoints : '?', offTotal: m ? m.alliances[r.alliance].score : '?' };
                         });
-                        const officialMatches = await res.json();
-
-                        const finalBatch = this.pendingSync.map(record => {
-                            const match = officialMatches.find(m => m.match_number == record.matchNum && m.comp_level == 'qm');
-                            return {
-                                ...record,
-                                offAuto: (match && match.score_breakdown) ? match.score_breakdown[record.alliance].autoPoints : '?',
-                                offTotal: match ? match.alliances[record.alliance].score : '?'
-                            };
-                        });
-
-                        // Post using Simple Request protocol to avoid CORS
-                        await fetch(this.sheetUrl, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            headers: { 'Content-Type': 'text/plain' },
-                            body: JSON.stringify(finalBatch)
-                        });
-
-                        this.pendingSync = [];
-                        localStorage.setItem('mo_sync_v4', '[]');
-                        alert("Sync successful - Spreadsheet updated.");
-                    } catch (err) {
-                        alert("Sync encountered an error - data remains cached locally.");
-                        console.error(err);
-                    } finally {
-                        btn.innerText = "SYNC COMPLETE";
-                        setTimeout(() => { btn.innerText = "SYNC DATA"; btn.disabled = false; }, 2000);
-                    }
+                        await fetch(this.sheetUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(finalBatch) });
+                        this.pendingSync = []; localStorage.setItem('mo_sync_v5', '[]'); alert("Sync OK");
+                    } catch (err) { alert("Sync Error"); } finally { btn.innerText = "SYNC DATA"; }
                 },
-
-                saveSettings() {
-                    localStorage.setItem('mo_sheet_v4', this.sheetUrl);
-                    this.showSettings = false;
-                }
-            };
-        }
+                saveSettings() { localStorage.setItem('mo_sheet_v5', this.sheetUrl); this.showSettings = false; }
+            }));
+            Alpine.component('x-slider', { template: '#x-slider' });
+        });
     </script>
 </body>
 </html>
