@@ -22,8 +22,8 @@
 
     <template x-if="!authenticated">
         <div class="fixed inset-0 z-[100] bg-gray-950 flex flex-col items-center justify-center p-6 text-center">
-            <h1 class="text-4xl font-black mb-2 text-blue-600 italic uppercase">NEWTON MO</h1>
-            <p class="text-gray-500 font-bold mb-10 tracking-widest text-xs uppercase">Version 7.5.0</p>
+            <h1 class="text-4xl font-black mb-2 text-blue-600 italic uppercase">Newton Match Observer</h1>
+            <p class="text-gray-500 font-bold mb-10 tracking-widest text-xs uppercase">Version 0.5.0</p>
             <input type="password" x-model="passwordInput" @keyup.enter="login()" class="w-full max-w-sm p-5 rounded-2xl bg-gray-800 mb-6 text-center text-2xl border border-gray-700 outline-none" placeholder="Access Code">
             <button @click="login()" class="w-full max-w-sm bg-blue-600 py-5 rounded-2xl font-black text-xl uppercase italic">Authorize</button>
         </div>
@@ -178,7 +178,7 @@
                 authenticated: false, passwordInput: '', showSettings: false, tbaError: false,
                 matchNum: 1, alliance: 'red', 
                 eventKey: localStorage.getItem('mo_event_v7') || '2026new',
-                sheetUrl: localStorage.getItem('mo_sheet_v7') || '',
+                sheetUrl: localStorage.getItem('mo_sheet_v7') || 'https://script.google.com/macros/s/AKfycbxk5ghB7YuFqxcchPIr29MBeJTKHbSZocO8Zuy3dFSoryk0pW4DT6lMsebxgueH9Sakdg/exec',
                 tbaKey: '0DRn5X0aCfSzLQiG4HyL8r0ncrjhzRKgFj5bZEfrFjCdfe2NB653OI7rg76wkyJ5',
                 teams: [{number: '---'},{number: '---'},{number: '---'}],
                 formData: [], matchHistory: JSON.parse(localStorage.getItem('mo_history_v7') || '[]'),
